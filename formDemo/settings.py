@@ -86,7 +86,7 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': 'Htmlphphack_2025',
         'HOST': 'localhost',  # You can specify the host here
-        'PORT': '',  # You can specify the port if it's not the default (3306)
+        'PORT': '3306',  # You can specify the port if it's not the default (3306)
     }
 }
 

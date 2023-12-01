@@ -54,6 +54,8 @@ def delete_user(request, user_id):
     
     if request.method == 'POST':
         user.delete()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'message': 'User deleted successfully'})
         return redirect('manage_users')
 
     return render(request, 'delete_user.html', {'user': user})
