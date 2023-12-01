@@ -27,8 +27,10 @@
         }
 
         .btn-success,
-        .btn-danger {
-            width: 100%;
+        .btn-danger,
+        .btn-warning {
+            width: 48%; /* Adjusted width to fit all buttons on the same line */
+            margin-right: 2%; /* Added margin for spacing */
         }
 
         /* Add background color to form fields */
@@ -40,6 +42,11 @@
         /* Style for the list of users */
         #user-list {
             margin-top: 20px;
+        }
+
+        /* Ensure buttons are on the same line */
+        li button {
+            display: inline-block;
         }
     </style>
     <title>Formulario de Registro</title>
@@ -90,9 +97,10 @@
             <h2>List of Users</h2>
             <ul>
                 {% for user in users %}
-                    <li>{{ user.nombre }} - {{ user.email }} - {{ user.fono }}
-                        <a href="{% url 'update_user' user_id=user.id %}" class="btn btn-warning btn-sm">Actualizar</a>
-                        <a href="{% url 'delete_user' user_id=user.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?')">Eliminar</a>
+                    <li id="user-{{ user.id }}">
+                        {{ user.nombre }} - {{ user.email }} - {{ user.fono }}
+                        <button class="btn btn-warning btn-sm" onclick="updateUser({{ user.id }})">Modificar</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser({{ user.id }})">Eliminar</button>
                     </li>
                 {% endfor %}
             </ul>
@@ -104,7 +112,7 @@
         $(document).ready(function () {
             $('#create-user-form').submit(function (e) {
                 e.preventDefault(); // Prevent the form from submitting normally
-
+    
                 $.ajax({
                     type: 'POST',
                     url: $(this).attr('action'),
@@ -113,9 +121,13 @@
                         // Assuming the server responds with the new user data
                         // Update the user list
                         $('#user-list ul').append(
-                            `<li>${data.nombre} - ${data.email} - ${data.fono}</li>`
+                            `<li id="user-${data.id}">
+                                ${data.nombre} - ${data.email} - ${data.fono}
+                                <button class="btn btn-warning btn-sm" onclick="updateUser(${data.id})">Modificar</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteUser(${data.id})">Eliminar</button>
+                            </li>`
                         );
-
+    
                         // Clear the form
                         $('#create-user-form')[0].reset();
                     },
@@ -124,6 +136,27 @@
                     }
                 });
             });
+    
+            function updateUser(userId) {
+                // Implement the logic for updating user (you can redirect to a separate page or show a modal)
+                console.log('Update user with ID:', userId);
+            }
+    
+            function deleteUser(userId) {
+                // Send an AJAX request to delete the user
+                $.ajax({
+                    type: 'POST',
+                    url: `/delete_user/${userId}/`,  // Adjust the URL based on your Django URL configuration
+                    data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+                    success: function () {
+                        // Assuming successful deletion, remove the user from the list
+                        $(`#user-${userId}`).remove();
+                    },
+                    error: function (data) {
+                        console.log('Error:', data);
+                    }
+                });
+            }
         });
     </script>
 </body>
